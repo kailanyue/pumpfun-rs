@@ -1,5 +1,5 @@
-use serde::{Serialize, Deserialize};
 use crate::instruction::logs_data::{CreateTokenInfo, TradeInfo};
+use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub enum DexEvent {

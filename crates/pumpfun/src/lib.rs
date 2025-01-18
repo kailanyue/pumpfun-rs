@@ -4,39 +4,39 @@ pub mod accounts;
 pub mod constants;
 pub mod error;
 pub mod instruction;
-pub mod utils;
 pub mod jito;
+pub mod utils;
 
+use anchor_client::Cluster;
 use anchor_client::{
     solana_client::rpc_client::RpcClient,
     solana_sdk::{
         commitment_config::CommitmentConfig,
+        compute_budget::ComputeBudgetInstruction,
+        instruction::Instruction,
         pubkey::Pubkey,
         signature::{Keypair, Signature},
         signer::Signer,
-        instruction::Instruction,
         system_instruction,
-        compute_budget::ComputeBudgetInstruction,
         transaction::Transaction,
     },
 };
-use anchor_client::Cluster;
 use anchor_spl::associated_token::{
     get_associated_token_address,
     spl_associated_token_account::instruction::create_associated_token_account,
 };
 
+use instruction::logs_events::DexEvent;
 use instruction::logs_subscribe;
 use instruction::logs_subscribe::SubscriptionHandle;
-use instruction::logs_events::DexEvent;
 
-use std::sync::Arc;
 use borsh::BorshDeserialize;
-use std::time::Instant;
 pub use pumpfun_cpi as cpi;
+use std::sync::Arc;
+use std::time::Instant;
 
-use crate::jito::JitoClient;
 use crate::error::ClientError;
+use crate::jito::JitoClient;
 
 // Constants
 const DEFAULT_SLIPPAGE: u64 = 1000; // 10%
@@ -53,7 +53,10 @@ pub struct PriorityFee {
 
 impl Default for PriorityFee {
     fn default() -> Self {
-        Self { limit: Some(DEFAULT_COMPUTE_UNIT_LIMIT), price: Some(DEFAULT_COMPUTE_UNIT_PRICE) }
+        Self {
+            limit: Some(DEFAULT_COMPUTE_UNIT_LIMIT),
+            price: Some(DEFAULT_COMPUTE_UNIT_PRICE),
+        }
     }
 }
 
@@ -66,10 +69,7 @@ pub struct PumpFun {
 impl Clone for PumpFun {
     fn clone(&self) -> Self {
         Self {
-            rpc: RpcClient::new_with_commitment(
-                self.rpc.url().to_string(),
-                self.rpc.commitment()
-            ),
+            rpc: RpcClient::new_with_commitment(self.rpc.url().to_string(), self.rpc.commitment()),
             payer: self.payer.clone(),
             jito_client: self.jito_client.clone(),
         }
@@ -86,8 +86,8 @@ impl PumpFun {
     ) -> Self {
         let rpc = RpcClient::new_with_commitment(
             cluster.url(),
-            commitment.unwrap_or(CommitmentConfig::confirmed())
-        );   
+            commitment.unwrap_or(CommitmentConfig::confirmed()),
+        );
 
         let jito_client = jito_url.map(|url| JitoClient::new(&url, None));
 
@@ -149,8 +149,10 @@ impl PumpFun {
 
         let global_account = self.get_global_account()?;
         let buy_amount = global_account.get_initial_buy_price(amount_sol);
-        let buy_amount_with_slippage =
-            utils::calculate_with_slippage_buy(amount_sol, slippage_basis_points.unwrap_or(DEFAULT_SLIPPAGE));
+        let buy_amount_with_slippage = utils::calculate_with_slippage_buy(
+            amount_sol,
+            slippage_basis_points.unwrap_or(DEFAULT_SLIPPAGE),
+        );
 
         let mut instructions = self.create_priority_fee_instructions(priority_fee);
 
@@ -210,8 +212,10 @@ impl PumpFun {
         let buy_amount = bonding_curve_account
             .get_buy_price(amount_sol)
             .map_err(ClientError::BondingCurveError)?;
-        let buy_amount_with_slippage =
-            utils::calculate_with_slippage_buy(amount_sol, slippage_basis_points.unwrap_or(DEFAULT_SLIPPAGE));
+        let buy_amount_with_slippage = utils::calculate_with_slippage_buy(
+            amount_sol,
+            slippage_basis_points.unwrap_or(DEFAULT_SLIPPAGE),
+        );
 
         let mut instructions = self.create_priority_fee_instructions(priority_fee);
 
@@ -256,7 +260,9 @@ impl PumpFun {
     ) -> Result<String, ClientError> {
         let start_time = Instant::now();
 
-        let jito_client = self.jito_client.as_ref()
+        let jito_client = self
+            .jito_client
+            .as_ref()
             .ok_or_else(|| ClientError::Other("Jito client not found".to_string()))?;
 
         let global_account = self.get_global_account()?;
@@ -264,8 +270,10 @@ impl PumpFun {
         let buy_amount = bonding_curve_account
             .get_buy_price(amount_sol)
             .map_err(ClientError::BondingCurveError)?;
-        let buy_amount_with_slippage =
-            utils::calculate_with_slippage_buy(amount_sol, slippage_basis_points.unwrap_or(DEFAULT_SLIPPAGE));
+        let buy_amount_with_slippage = utils::calculate_with_slippage_buy(
+            amount_sol,
+            slippage_basis_points.unwrap_or(DEFAULT_SLIPPAGE),
+        );
 
         let mut instructions = vec![];
 
@@ -289,14 +297,12 @@ impl PumpFun {
                 _max_sol_cost: buy_amount_with_slippage,
             },
         ));
-        
-        instructions.push(
-            system_instruction::transfer(
-                &self.payer.pubkey(),
-                &tip_account,
-                JITO_TIP_AMOUNT,
-            ),
-        );
+
+        instructions.push(system_instruction::transfer(
+            &self.payer.pubkey(),
+            &tip_account,
+            JITO_TIP_AMOUNT,
+        ));
 
         let recent_blockhash = self.rpc.get_latest_blockhash()?;
         let transaction = Transaction::new_signed_with_payer(
@@ -307,7 +313,10 @@ impl PumpFun {
         );
 
         let signature = jito_client.send_transaction(&transaction).await?;
-        println!("Total Jito buy operation time: {:?}ms", start_time.elapsed().as_millis());
+        println!(
+            "Total Jito buy operation time: {:?}ms",
+            start_time.elapsed().as_millis()
+        );
 
         Ok(signature)
     }
@@ -322,10 +331,12 @@ impl PumpFun {
     ) -> Result<Signature, ClientError> {
         let ata = get_associated_token_address(&self.payer.pubkey(), mint);
         let balance = self.rpc.get_token_account_balance(&ata)?;
-        let balance_u64 = balance.amount.parse::<u64>()
+        let balance_u64 = balance
+            .amount
+            .parse::<u64>()
             .map_err(|_| ClientError::Other("Failed to parse token balance".to_string()))?;
         let amount = amount_token.unwrap_or(balance_u64);
-        
+
         if amount == 0 {
             return Err(ClientError::Other("Balance is 0".to_string()));
         }
@@ -374,20 +385,25 @@ impl PumpFun {
         priority_fee: Option<PriorityFee>,
     ) -> Result<Signature, ClientError> {
         if percent > 100 {
-            return Err(ClientError::Other("Percentage must be between 0 and 100".to_string()));
+            return Err(ClientError::Other(
+                "Percentage must be between 0 and 100".to_string(),
+            ));
         }
 
         let ata = get_associated_token_address(&self.payer.pubkey(), mint);
         let balance = self.rpc.get_token_account_balance(&ata)?;
-        let balance_u64 = balance.amount.parse::<u64>()
+        let balance_u64 = balance
+            .amount
+            .parse::<u64>()
             .map_err(|_| ClientError::Other("Failed to parse token balance".to_string()))?;
-        
+
         if balance_u64 == 0 {
             return Err(ClientError::Other("Balance is 0".to_string()));
         }
 
         let amount = balance_u64 * percent / 100;
-        self.sell(mint, Some(amount), slippage_basis_points, priority_fee).await
+        self.sell(mint, Some(amount), slippage_basis_points, priority_fee)
+            .await
     }
 
     pub async fn sell_by_percent_with_jito(
@@ -397,20 +413,25 @@ impl PumpFun {
         slippage_basis_points: Option<u64>,
     ) -> Result<String, ClientError> {
         if percent > 100 {
-            return Err(ClientError::Other("Percentage must be between 0 and 100".to_string()));
+            return Err(ClientError::Other(
+                "Percentage must be between 0 and 100".to_string(),
+            ));
         }
 
         let ata = get_associated_token_address(&self.payer.pubkey(), mint);
         let balance = self.rpc.get_token_account_balance(&ata)?;
-        let balance_u64 = balance.amount.parse::<u64>()
+        let balance_u64 = balance
+            .amount
+            .parse::<u64>()
             .map_err(|_| ClientError::Other("Failed to parse token balance".to_string()))?;
-        
+
         if balance_u64 == 0 {
             return Err(ClientError::Other("Balance is 0".to_string()));
         }
 
         let amount = balance_u64 * percent / 100;
-        self.sell_with_jito(mint, Some(amount), slippage_basis_points).await
+        self.sell_with_jito(mint, Some(amount), slippage_basis_points)
+            .await
     }
 
     /// Sell tokens using Jito
@@ -422,12 +443,16 @@ impl PumpFun {
     ) -> Result<String, ClientError> {
         let start_time = Instant::now();
 
-        let jito_client = self.jito_client.as_ref()
+        let jito_client = self
+            .jito_client
+            .as_ref()
             .ok_or_else(|| ClientError::Other("Jito client not found".to_string()))?;
 
         let ata = get_associated_token_address(&self.payer.pubkey(), mint);
         let balance = self.rpc.get_token_account_balance(&ata)?;
-        let balance_u64 = balance.amount.parse::<u64>()
+        let balance_u64 = balance
+            .amount
+            .parse::<u64>()
             .map_err(|_| ClientError::Other("Failed to parse token balance".to_string()))?;
         let amount = amount_token.unwrap_or(balance_u64);
 
@@ -457,13 +482,11 @@ impl PumpFun {
             },
         ));
 
-        instructions.push(
-            system_instruction::transfer(
-                &self.payer.pubkey(),
-                &tip_account,
-                JITO_TIP_AMOUNT,
-            ),
-        );
+        instructions.push(system_instruction::transfer(
+            &self.payer.pubkey(),
+            &tip_account,
+            JITO_TIP_AMOUNT,
+        ));
 
         let recent_blockhash = self.rpc.get_latest_blockhash()?;
         let transaction = Transaction::new_signed_with_payer(
@@ -474,13 +497,19 @@ impl PumpFun {
         );
 
         let signature = jito_client.send_transaction(&transaction).await?;
-        println!("Total Jito sell operation time: {:?}ms", start_time.elapsed().as_millis());
+        println!(
+            "Total Jito sell operation time: {:?}ms",
+            start_time.elapsed().as_millis()
+        );
 
         Ok(signature)
     }
 
     // Helper methods
-    fn create_priority_fee_instructions(&self, priority_fee: Option<PriorityFee>) -> Vec<Instruction> {
+    fn create_priority_fee_instructions(
+        &self,
+        priority_fee: Option<PriorityFee>,
+    ) -> Vec<Instruction> {
         let mut instructions = Vec::new();
         let fee = priority_fee.unwrap_or(PriorityFee::default());
         if let Some(limit) = fee.limit {
@@ -489,7 +518,7 @@ impl PumpFun {
         if let Some(price) = fee.price {
             instructions.push(ComputeBudgetInstruction::set_compute_unit_price(price));
         }
-        
+
         instructions
     }
 
@@ -505,12 +534,16 @@ impl PumpFun {
         }
 
         let balance = self.rpc.get_token_account_balance(&ata)?;
-        balance.amount.parse::<u64>()
+        balance
+            .amount
+            .parse::<u64>()
             .map_err(|_| ClientError::Other("Failed to parse token balance".to_string()))
     }
 
     pub fn get_sol_balance(&self, account: &Pubkey) -> Result<u64, ClientError> {
-        self.rpc.get_balance(account).map_err(ClientError::SolanaClientError)
+        self.rpc
+            .get_balance(account)
+            .map_err(ClientError::SolanaClientError)
     }
 
     pub fn get_payer_token_balance(&self, mint: &Pubkey) -> Result<u64, ClientError> {
@@ -533,8 +566,9 @@ impl PumpFun {
     pub fn get_bonding_curve_pda(mint: &Pubkey) -> Option<Pubkey> {
         Pubkey::try_find_program_address(
             &[constants::seeds::BONDING_CURVE_SEED, mint.as_ref()],
-            &cpi::ID
-        ).map(|(pubkey, _)| pubkey)
+            &cpi::ID,
+        )
+        .map(|(pubkey, _)| pubkey)
     }
 
     pub fn get_metadata_pda(mint: &Pubkey) -> Pubkey {
@@ -544,24 +578,24 @@ impl PumpFun {
                 constants::accounts::MPL_TOKEN_METADATA.as_ref(),
                 mint.as_ref(),
             ],
-            &constants::accounts::MPL_TOKEN_METADATA
-        ).0
+            &constants::accounts::MPL_TOKEN_METADATA,
+        )
+        .0
     }
 
     // Account related methods
     pub fn get_global_account(&self) -> Result<accounts::GlobalAccount, ClientError> {
         let global = Self::get_global_pda();
         let account = self.rpc.get_account(&global)?;
-        accounts::GlobalAccount::try_from_slice(&account.data)
-            .map_err(ClientError::BorshError)
+        accounts::GlobalAccount::try_from_slice(&account.data).map_err(ClientError::BorshError)
     }
 
     pub fn get_bonding_curve_account(
         &self,
         mint: &Pubkey,
     ) -> Result<accounts::BondingCurveAccount, ClientError> {
-        let bonding_curve_pda = Self::get_bonding_curve_pda(mint)
-            .ok_or(ClientError::BondingCurveNotFound)?;
+        let bonding_curve_pda =
+            Self::get_bonding_curve_pda(mint).ok_or(ClientError::BondingCurveNotFound)?;
         let account = self.rpc.get_account(&bonding_curve_pda)?;
         accounts::BondingCurveAccount::try_from_slice(&account.data)
             .map_err(ClientError::BorshError)
@@ -585,8 +619,15 @@ impl PumpFun {
         subscription_handle.shutdown().await;
     }
 
-    pub fn get_buy_amount_with_slippage(&self, amount_sol: u64, slippage_basis_points: Option<u64>) -> u64 {
-        utils::calculate_with_slippage_buy(amount_sol, slippage_basis_points.unwrap_or(DEFAULT_SLIPPAGE))
+    pub fn get_buy_amount_with_slippage(
+        &self,
+        amount_sol: u64,
+        slippage_basis_points: Option<u64>,
+    ) -> u64 {
+        utils::calculate_with_slippage_buy(
+            amount_sol,
+            slippage_basis_points.unwrap_or(DEFAULT_SLIPPAGE),
+        )
     }
 
     pub fn get_token_price(&self, virtual_sol_reserves: u64, virtual_token_reserves: u64) -> f64 {
@@ -596,26 +637,29 @@ impl PumpFun {
         token_price
     }
 
-    pub async fn get_token_price_in_usdc(&self, token_amount: f64) -> Result<f64, ClientError>  {
+    pub async fn get_token_price_in_usdc(&self, token_amount: f64) -> Result<f64, ClientError> {
         if token_amount == 0.0 {
             return Ok(0.0);
         }
-        
+
         let url = "https://api.jup.ag/price/v2?ids=So11111111111111111111111111111111111111112";
         let response: serde_json::Value = reqwest::get(url)
             .await
-            .map_err(|e: reqwest::Error| ClientError::Other(Box::new(e).to_string()))?
+            .map_err(|e: reqwest::Error| ClientError::Other(e.to_string()))?
             .json()
             .await
-            .map_err(|e: reqwest::Error| ClientError::Other(Box::new(e).to_string()))?;
-    
-        let sol_price_str = response["data"]["So11111111111111111111111111111111111111112"]["price"]
+            .map_err(|e: reqwest::Error| ClientError::Other(e.to_string()))?;
+
+        let sol_price_str = response["data"]["So11111111111111111111111111111111111111112"]
+            ["price"]
             .as_str()
-            .ok_or(ClientError::Other("Failed to find SOL price as a string".into()))?;
+            .ok_or(ClientError::Other(
+                "Failed to find SOL price as a string".into(),
+            ))?;
 
         let sol_price_in_usdc: f64 = sol_price_str
             .parse()
-            .map_err(|e: std::num::ParseFloatError| ClientError::Other(Box::new(e).to_string()))?;
+            .map_err(|e: std::num::ParseFloatError| ClientError::Other(e.to_string()))?;
 
         let token_price_in_usdc = sol_price_in_usdc * token_amount;
         Ok(token_price_in_usdc)

@@ -1,16 +1,17 @@
 use anchor_client::solana_client::{
     nonblocking::pubsub_client::PubsubClient,
-    rpc_config::{RpcTransactionLogsConfig, RpcTransactionLogsFilter}
+    rpc_config::{RpcTransactionLogsConfig, RpcTransactionLogsFilter},
 };
 
+use crate::{
+    constants,
+    instruction::{logs_data::DexInstruction, logs_events::DexEvent, logs_filters::LogFilter},
+};
 use anchor_client::solana_sdk::{commitment_config::CommitmentConfig, pubkey::Pubkey};
+use futures::StreamExt;
 use std::sync::Arc;
 use tokio::sync::mpsc;
 use tokio::task::JoinHandle;
-use futures::StreamExt;
-use crate::{constants, instruction::{
-    logs_data::DexInstruction, logs_events::DexEvent, logs_filters::LogFilter
-}};
 
 /// Subscription handle containing task and unsubscribe logic
 pub struct SubscriptionHandle {
@@ -56,7 +57,10 @@ where
 
     // Start subscription task
     let task = tokio::spawn(async move {
-        let (mut stream, _) = sub_client_clone.logs_subscribe(logs_filter, logs_config).await.unwrap();
+        let (mut stream, _) = sub_client_clone
+            .logs_subscribe(logs_filter, logs_config)
+            .await
+            .unwrap();
 
         loop {
             let msg = stream.next().await;
@@ -66,7 +70,8 @@ where
                         continue;
                     }
 
-                    let instructions = LogFilter::parse_instruction(&msg.value.logs, bot_wallet).unwrap();
+                    let instructions =
+                        LogFilter::parse_instruction(&msg.value.logs, bot_wallet).unwrap();
                     for instruction in instructions {
                         match instruction {
                             DexInstruction::CreateToken(token_info) => {
@@ -85,7 +90,7 @@ where
                 None => {
                     println!("Token subscription stream ended");
                 }
-            }   
+            }
         }
     });
 

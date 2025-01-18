@@ -1,13 +1,10 @@
-use std::fmt;
-use std::str::FromStr;
 use rand::seq::SliceRandom;
 use reqwest::Client;
 use serde_json::{json, Value};
+use std::fmt;
+use std::str::FromStr;
 
-use anchor_client::solana_sdk::{
-    pubkey::Pubkey,
-    transaction::Transaction,
-};
+use anchor_client::solana_sdk::{pubkey::Pubkey, transaction::Transaction};
 
 use crate::error::{ClientError, ClientResult};
 
@@ -42,9 +39,14 @@ impl JitoClient {
         }
     }
 
-    async fn send_request(&self, endpoint: &str, method: &str, params: Option<Value>) -> ClientResult<Value> {
+    async fn send_request(
+        &self,
+        endpoint: &str,
+        method: &str,
+        params: Option<Value>,
+    ) -> ClientResult<Value> {
         let url = format!("{}{}", self.base_url, endpoint);
-        
+
         let data = json!({
             "jsonrpc": "2.0",
             "id": 1,
@@ -55,7 +57,8 @@ impl JitoClient {
         // println!("Sending request to: {}", url);
         // println!("Request body: {}", serde_json::to_string_pretty(&data).unwrap());
 
-        let response = self.client
+        let response = self
+            .client
             .post(&url)
             .header("Content-Type", "application/json")
             .json(&data)
@@ -63,10 +66,12 @@ impl JitoClient {
             .await
             .map_err(|e| ClientError::Other(format!("Request failed: {}", e)))?;
 
-        let status = response.status();
+        let _status = response.status();
         // println!("Response status: {}", status);
 
-        let body = response.json::<Value>().await
+        let body = response
+            .json::<Value>()
+            .await
             .map_err(|e| ClientError::Other(format!("Failed to parse response: {}", e)))?;
         // println!("Response body: {}", serde_json::to_string_pretty(&body).unwrap());
 
@@ -86,10 +91,10 @@ impl JitoClient {
     // Get a random tip account
     pub async fn get_tip_account(&self) -> ClientResult<Pubkey> {
         let tip_accounts_response = self.get_tip_accounts().await?;
-        
-        let tip_accounts = tip_accounts_response["result"]
-            .as_array()
-            .ok_or_else(|| ClientError::Other("Failed to parse tip accounts as array".to_string()))?;
+
+        let tip_accounts = tip_accounts_response["result"].as_array().ok_or_else(|| {
+            ClientError::Other("Failed to parse tip accounts as array".to_string())
+        })?;
 
         if tip_accounts.is_empty() {
             return Err(ClientError::Other("No tip accounts available".to_string()));
@@ -99,9 +104,9 @@ impl JitoClient {
             .choose(&mut rand::thread_rng())
             .ok_or_else(|| ClientError::Other("Failed to choose random tip account".to_string()))?;
 
-        let address = random_account
-            .as_str()
-            .ok_or_else(|| ClientError::Other("Failed to parse tip account as string".to_string()))?;
+        let address = random_account.as_str().ok_or_else(|| {
+            ClientError::Other("Failed to parse tip account as string".to_string())
+        })?;
 
         Pubkey::from_str(address)
             .map_err(|e| ClientError::Other(format!("Failed to parse pubkey: {}", e)))
@@ -121,10 +126,7 @@ impl JitoClient {
             .await
     }
 
-    pub async fn send_transaction(
-        &self,
-        transaction: &Transaction,
-    ) -> ClientResult<String> {
+    pub async fn send_transaction(&self, transaction: &Transaction) -> ClientResult<String> {
         let wire_transaction = bincode::serialize(transaction).map_err(|e| {
             ClientError::Parse(
                 "Transaction serialization failed".to_string(),
@@ -147,36 +149,50 @@ impl JitoClient {
         response["result"]
             .as_str()
             .map(|s| s.to_string())
-            .ok_or_else(|| ClientError::Parse(
-                "Invalid response format".to_string(),
-                "Missing result field".to_string(),
-            ))
+            .ok_or_else(|| {
+                ClientError::Parse(
+                    "Invalid response format".to_string(),
+                    "Missing result field".to_string(),
+                )
+            })
     }
 
-    pub async fn send_bundle(&self, params: Option<Value>, uuid: Option<&str>) -> ClientResult<Value> {
+    pub async fn send_bundle(
+        &self,
+        params: Option<Value>,
+        uuid: Option<&str>,
+    ) -> ClientResult<Value> {
         let mut endpoint = "/bundles".to_string();
-        
+
         if let Some(uuid) = uuid {
             endpoint = format!("{}?uuid={}", endpoint, uuid);
         }
-    
+
         // Ensure params is an array of transactions
         let transactions = match params {
             Some(Value::Array(transactions)) => {
                 if transactions.is_empty() {
-                    return Err(ClientError::Other("Bundle must contain at least one transaction".to_string()));
+                    return Err(ClientError::Other(
+                        "Bundle must contain at least one transaction".to_string(),
+                    ));
                 }
                 if transactions.len() > 5 {
-                    return Err(ClientError::Other("Bundle can contain at most 5 transactions".to_string()));
+                    return Err(ClientError::Other(
+                        "Bundle can contain at most 5 transactions".to_string(),
+                    ));
                 }
                 transactions
-            },
-            _ => return Err(ClientError::Other("Invalid bundle format: expected an array of transactions".to_string())),
+            }
+            _ => {
+                return Err(ClientError::Other(
+                    "Invalid bundle format: expected an array of transactions".to_string(),
+                ))
+            }
         };
-    
+
         // Wrap the transactions array in another array
         let params = json!([transactions]);
-    
+
         // Send the wrapped transactions array
         self.send_request(&endpoint, "sendBundle", Some(params))
             .await
@@ -199,7 +215,10 @@ impl JitoClient {
         let params = match params {
             Some(Value::Object(map)) => {
                 let tx = map.get("tx").and_then(Value::as_str).unwrap_or_default();
-                let skip_preflight = map.get("skipPreflight").and_then(Value::as_bool).unwrap_or(false);
+                let skip_preflight = map
+                    .get("skipPreflight")
+                    .and_then(Value::as_bool)
+                    .unwrap_or(false);
                 json!([
                     tx,
                     {
@@ -207,14 +226,18 @@ impl JitoClient {
                         "skipPreflight": skip_preflight
                     }
                 ])
-            },
+            }
             _ => json!([]),
         };
 
-        self.send_request(&endpoint, "sendTransaction", Some(params)).await
+        self.send_request(&endpoint, "sendTransaction", Some(params))
+            .await
     }
 
-    pub async fn get_in_flight_bundle_statuses(&self, bundle_uuids: Vec<String>) -> ClientResult<Value> {
+    pub async fn get_in_flight_bundle_statuses(
+        &self,
+        bundle_uuids: Vec<String>,
+    ) -> ClientResult<Value> {
         let endpoint = if let Some(uuid) = &self.uuid {
             format!("/bundles?uuid={}", uuid)
         } else {

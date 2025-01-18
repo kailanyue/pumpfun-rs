@@ -19,11 +19,10 @@
 //! - `RateLimitExceeded`: Rate limit exceeded.
 
 use anchor_client::solana_client;
-use serde_json::Error;
 use anchor_client::solana_client::{
-    client_error::ClientError as SolanaClientError, 
-    pubsub_client::PubsubClientError
+    client_error::ClientError as SolanaClientError, pubsub_client::PubsubClientError,
 };
+use serde_json::Error;
 use solana_sdk::pubkey::ParsePubkeyError;
 
 #[derive(Debug)]
@@ -53,10 +52,10 @@ pub enum ClientError {
 
     ExternalService(String),
 
-    Redis(String, String),      
+    Redis(String, String),
 
     Solana(String, String),
-    
+
     Parse(String, String),
 
     Pubkey(String, String),
@@ -107,13 +106,17 @@ impl std::fmt::Display for ClientError {
             Self::Redis(msg, details) => write!(f, "Redis error: {}, details: {}", msg, details),
             Self::Join(msg) => write!(f, "Task join error: {}", msg),
             Self::Pubkey(msg, details) => write!(f, "Pubkey error: {}, details: {}", msg, details),
-            Self::Subscribe(msg, details) => write!(f, "Subscribe error: {}, details: {}", msg, details),
+            Self::Subscribe(msg, details) => {
+                write!(f, "Subscribe error: {}, details: {}", msg, details)
+            }
             Self::Send(msg, details) => write!(f, "Send error: {}, details: {}", msg, details),
             Self::Other(msg) => write!(f, "Other error: {}", msg),
             Self::PumpFunBuy(msg) => write!(f, "PumpFun buy error: {}", msg),
             Self::PumpFunSell(msg) => write!(f, "PumpFun sell error: {}", msg),
             Self::InvalidData(msg) => write!(f, "Invalid data: {}", msg),
-            Self::Timeout(msg, details) => write!(f, "Operation timed out: {}, details: {}", msg, details),
+            Self::Timeout(msg, details) => {
+                write!(f, "Operation timed out: {}, details: {}", msg, details)
+            }
             Self::Duplicate(msg) => write!(f, "Duplicate event: {}", msg),
             Self::InvalidEventType => write!(f, "Invalid event type"),
             Self::ChannelClosed => write!(f, "Channel closed"),
@@ -150,37 +153,25 @@ impl std::error::Error for ClientError {
 
 impl From<SolanaClientError> for ClientError {
     fn from(error: SolanaClientError) -> Self {
-        ClientError::Solana(
-            "Solana client error".to_string(),
-            error.to_string(),
-        )
+        ClientError::Solana("Solana client error".to_string(), error.to_string())
     }
 }
 
 impl From<PubsubClientError> for ClientError {
     fn from(error: PubsubClientError) -> Self {
-        ClientError::Solana(
-            "PubSub client error".to_string(),
-            error.to_string(),
-        )
+        ClientError::Solana("PubSub client error".to_string(), error.to_string())
     }
 }
 
 impl From<ParsePubkeyError> for ClientError {
     fn from(error: ParsePubkeyError) -> Self {
-        ClientError::Pubkey(
-            "Pubkey error".to_string(),
-            error.to_string(),
-        )
+        ClientError::Pubkey("Pubkey error".to_string(), error.to_string())
     }
 }
 
 impl From<Error> for ClientError {
     fn from(err: Error) -> Self {
-        ClientError::Parse(
-            "JSON serialization error".to_string(),
-            err.to_string()
-        )
+        ClientError::Parse("JSON serialization error".to_string(), err.to_string())
     }
 }
 

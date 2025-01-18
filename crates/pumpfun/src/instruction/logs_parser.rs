@@ -1,9 +1,9 @@
-use base64::{Engine as _, engine::general_purpose::STANDARD as BASE64};
+use base64::{engine::general_purpose::STANDARD as BASE64, Engine as _};
 
 use crate::error::{ClientError, ClientResult};
 use crate::instruction::{
-    logs_data::{DexInstruction, CreateTokenInfo, TradeInfo}, 
-    logs_filters::LogFilter
+    logs_data::{CreateTokenInfo, DexInstruction, TradeInfo},
+    logs_filters::LogFilter,
 };
 
 use anchor_client::solana_sdk::pubkey::Pubkey;
@@ -27,69 +27,87 @@ where
 // Add parsing function
 pub fn parse_create_token_data(data: &str) -> ClientResult<CreateTokenInfo> {
     // First do base64 decoding
-    let decoded = BASE64.decode(data)
+    let decoded = BASE64
+        .decode(data)
         .map_err(|e| ClientError::Other(format!("Failed to decode base64: {}", e)))?;
-    
+
     // Skip prefix bytes (if any)
     let mut cursor = if decoded.len() > 8 { 8 } else { 0 };
-    
+
     // Read name length and name
     if cursor + 4 > decoded.len() {
-        return Err(ClientError::Other("Data too short for name length".to_string()));
+        return Err(ClientError::Other(
+            "Data too short for name length".to_string(),
+        ));
     }
     let name_len = read_u32(&decoded[cursor..]) as usize;
     cursor += 4;
-    
+
     if cursor + name_len > decoded.len() {
-        return Err(ClientError::Other(format!("Data too short for name: need {} bytes", name_len)));
+        return Err(ClientError::Other(format!(
+            "Data too short for name: need {} bytes",
+            name_len
+        )));
     }
     let name = String::from_utf8(decoded[cursor..cursor + name_len].to_vec())
         .map_err(|e| ClientError::Other(format!("Invalid UTF-8 in name: {}", e)))?;
     cursor += name_len;
-    
+
     // Read symbol length and symbol
     if cursor + 4 > decoded.len() {
-        return Err(ClientError::Other("Data too short for symbol length".to_string()));
+        return Err(ClientError::Other(
+            "Data too short for symbol length".to_string(),
+        ));
     }
     let symbol_len = read_u32(&decoded[cursor..]) as usize;
     cursor += 4;
-    
+
     if cursor + symbol_len > decoded.len() {
-        return Err(ClientError::Other(format!("Data too short for symbol: need {} bytes", symbol_len)));
+        return Err(ClientError::Other(format!(
+            "Data too short for symbol: need {} bytes",
+            symbol_len
+        )));
     }
     let symbol = String::from_utf8(decoded[cursor..cursor + symbol_len].to_vec())
         .map_err(|e| ClientError::Other(format!("Invalid UTF-8 in symbol: {}", e)))?;
     cursor += symbol_len;
-    
+
     // Read URI length and URI
     if cursor + 4 > decoded.len() {
-        return Err(ClientError::Other("Data too short for URI length".to_string()));
+        return Err(ClientError::Other(
+            "Data too short for URI length".to_string(),
+        ));
     }
     let uri_len = read_u32(&decoded[cursor..]) as usize;
     cursor += 4;
-    
+
     if cursor + uri_len > decoded.len() {
-        return Err(ClientError::Other(format!("Data too short for URI: need {} bytes", uri_len)));
+        return Err(ClientError::Other(format!(
+            "Data too short for URI: need {} bytes",
+            uri_len
+        )));
     }
     let uri = String::from_utf8(decoded[cursor..cursor + uri_len].to_vec())
         .map_err(|e| ClientError::Other(format!("Invalid UTF-8 in uri: {}", e)))?;
     cursor += uri_len;
-    
+
     // Make sure there is enough data to read public keys
     if cursor + 32 * 3 > decoded.len() {
-        return Err(ClientError::Other("Data too short for public keys".to_string()));
+        return Err(ClientError::Other(
+            "Data too short for public keys".to_string(),
+        ));
     }
-    
+
     // Parse Mint Public Key
-    let mint = bs58::encode(&decoded[cursor..cursor+32]).into_string();
+    let mint = bs58::encode(&decoded[cursor..cursor + 32]).into_string();
     cursor += 32;
 
     // Parse Bonding Curve Public Key
-    let bonding_curve = bs58::encode(&decoded[cursor..cursor+32]).into_string();
+    let bonding_curve = bs58::encode(&decoded[cursor..cursor + 32]).into_string();
     cursor += 32;
 
     // Parse User Public Key
-    let user = bs58::encode(&decoded[cursor..cursor+32]).into_string();
+    let user = bs58::encode(&decoded[cursor..cursor + 32]).into_string();
 
     Ok(CreateTokenInfo {
         signature: String::new(),
@@ -110,14 +128,11 @@ fn read_u32(data: &[u8]) -> u32 {
 
 pub fn parse_trade_data(data: &str) -> ClientResult<TradeInfo> {
     let engine = base64::engine::general_purpose::STANDARD;
-    let decoded = engine.decode(data).map_err(|e| 
-        ClientError::Parse(
-            "Failed to decode base64".to_string(),
-            e.to_string()
-        )
-    )?;
+    let decoded = engine
+        .decode(data)
+        .map_err(|e| ClientError::Parse("Failed to decode base64".to_string(), e.to_string()))?;
 
-    let mut cursor = 8;  // Skip prefix
+    let mut cursor = 8; // Skip prefix
 
     // 1. Mint (32 bytes)
     let mint = bs58::encode(&decoded[cursor..cursor + 32]).into_string();
@@ -148,7 +163,8 @@ pub fn parse_trade_data(data: &str) -> ClientResult<TradeInfo> {
     cursor += 8;
 
     // 8. Virtual Token Reserves (8 bytes)
-    let virtual_token_reserves = u64::from_le_bytes(decoded[cursor..cursor + 8].try_into().unwrap());
+    let virtual_token_reserves =
+        u64::from_le_bytes(decoded[cursor..cursor + 8].try_into().unwrap());
     cursor += 8;
 
     let real_sol_reserves = u64::from_le_bytes(decoded[cursor..cursor + 8].try_into().unwrap());
