@@ -4,6 +4,9 @@
   "instructions": [
     {
       "name": "initialize",
+      "docs": [
+        "Creates the global state."
+      ],
       "accounts": [
         {
           "name": "global",
@@ -18,19 +21,16 @@
         {
           "name": "systemProgram",
           "isMut": false,
-          "isSigner": false,
-          "address": "11111111111111111111111111111111"
+          "isSigner": false
         }
       ],
-      "args": [],
-      "discriminant": {
-        "type": "u8",
-        "value": 175,
-        "bytes": [175, 175, 109, 31, 13, 152, 155, 237]
-      }
+      "args": []
     },
     {
       "name": "setParams",
+      "docs": [
+        "Sets the global state parameters."
+      ],
       "accounts": [
         {
           "name": "global",
@@ -45,62 +45,51 @@
         {
           "name": "systemProgram",
           "isMut": false,
-          "isSigner": false,
-          "address": "11111111111111111111111111111111"
+          "isSigner": false
         },
         {
           "name": "eventAuthority",
           "isMut": false,
-          "isSigner": false,
-          "address": "Ce6TQqeHC9p8KetsN6JsjHK7UTZk7nasjjnr7XxXp9F1"
+          "isSigner": false
         },
         {
           "name": "program",
           "isMut": false,
-          "isSigner": false,
-          "address": "6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P"
+          "isSigner": false
         }
       ],
       "args": [
         {
           "name": "feeRecipient",
-          "type": "publicKey",
-          "attrs": []
+          "type": "publicKey"
         },
         {
           "name": "initialVirtualTokenReserves",
-          "type": "u64",
-          "attrs": []
+          "type": "u64"
         },
         {
           "name": "initialVirtualSolReserves",
-          "type": "u64",
-          "attrs": []
+          "type": "u64"
         },
         {
           "name": "initialRealTokenReserves",
-          "type": "u64",
-          "attrs": []
+          "type": "u64"
         },
         {
           "name": "tokenTotalSupply",
-          "type": "u64",
-          "attrs": []
+          "type": "u64"
         },
         {
           "name": "feeBasisPoints",
-          "type": "u64",
-          "attrs": []
+          "type": "u64"
         }
-      ],
-      "discriminant": {
-        "type": "u8",
-        "value": 165,
-        "bytes": [165, 31, 134, 53, 189, 180, 130, 255]
-      }
+      ]
     },
     {
       "name": "create",
+      "docs": [
+        "Creates a new coin and bonding curve."
+      ],
       "accounts": [
         {
           "name": "mint",
@@ -130,8 +119,7 @@
         {
           "name": "mplTokenMetadata",
           "isMut": false,
-          "isSigner": false,
-          "address": "metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s"
+          "isSigner": false
         },
         {
           "name": "metadata",
@@ -146,65 +134,54 @@
         {
           "name": "systemProgram",
           "isMut": false,
-          "isSigner": false,
-          "address": "11111111111111111111111111111111"
+          "isSigner": false
         },
         {
           "name": "tokenProgram",
           "isMut": false,
-          "isSigner": false,
-          "address": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+          "isSigner": false
         },
         {
           "name": "associatedTokenProgram",
           "isMut": false,
-          "isSigner": false,
-          "address": "ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL"
+          "isSigner": false
         },
         {
           "name": "rent",
           "isMut": false,
-          "isSigner": false,
-          "address": "SysvarRent111111111111111111111111111111111"
+          "isSigner": false
         },
         {
           "name": "eventAuthority",
           "isMut": false,
-          "isSigner": false,
-          "address": "Ce6TQqeHC9p8KetsN6JsjHK7UTZk7nasjjnr7XxXp9F1"
+          "isSigner": false
         },
         {
           "name": "program",
           "isMut": false,
-          "isSigner": false,
-          "address": "6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P"
+          "isSigner": false
         }
       ],
       "args": [
         {
           "name": "name",
-          "type": "string",
-          "attrs": []
+          "type": "string"
         },
         {
           "name": "symbol",
-          "type": "string",
-          "attrs": []
+          "type": "string"
         },
         {
           "name": "uri",
-          "type": "string",
-          "attrs": []
+          "type": "string"
         }
-      ],
-      "discriminant": {
-        "type": "u8",
-        "value": 24,
-        "bytes": [24, 30, 200, 40, 5, 28, 7, 119]
-      }
+      ]
     },
     {
       "name": "buy",
+      "docs": [
+        "Buys tokens from a bonding curve."
+      ],
       "accounts": [
         {
           "name": "global",
@@ -244,54 +221,45 @@
         {
           "name": "systemProgram",
           "isMut": false,
-          "isSigner": false,
-          "address": "11111111111111111111111111111111"
+          "isSigner": false
         },
         {
           "name": "tokenProgram",
           "isMut": false,
-          "isSigner": false,
-          "address": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+          "isSigner": false
         },
         {
           "name": "rent",
           "isMut": false,
-          "isSigner": false,
-          "address": "SysvarRent111111111111111111111111111111111"
+          "isSigner": false
         },
         {
           "name": "eventAuthority",
           "isMut": false,
-          "isSigner": false,
-          "address": "Ce6TQqeHC9p8KetsN6JsjHK7UTZk7nasjjnr7XxXp9F1"
+          "isSigner": false
         },
         {
           "name": "program",
           "isMut": false,
-          "isSigner": false,
-          "address": "6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P"
+          "isSigner": false
         }
       ],
       "args": [
         {
           "name": "amount",
-          "type": "u64",
-          "attrs": []
+          "type": "u64"
         },
         {
           "name": "maxSolCost",
-          "type": "u64",
-          "attrs": []
+          "type": "u64"
         }
-      ],
-      "discriminant": {
-        "type": "u8",
-        "value": 102,
-        "bytes": [102, 6, 61, 18, 1, 218, 235, 234]
-      }
+      ]
     },
     {
       "name": "sell",
+      "docs": [
+        "Sells tokens into a bonding curve."
+      ],
       "accounts": [
         {
           "name": "global",
@@ -331,63 +299,49 @@
         {
           "name": "systemProgram",
           "isMut": false,
-          "isSigner": false,
-          "address": "11111111111111111111111111111111"
+          "isSigner": false
         },
         {
           "name": "associatedTokenProgram",
           "isMut": false,
-          "isSigner": false,
-          "address": "ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL"
+          "isSigner": false
         },
         {
           "name": "tokenProgram",
           "isMut": false,
-          "isSigner": false,
-          "address": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+          "isSigner": false
         },
         {
           "name": "eventAuthority",
           "isMut": false,
-          "isSigner": false,
-          "address": "Ce6TQqeHC9p8KetsN6JsjHK7UTZk7nasjjnr7XxXp9F1"
+          "isSigner": false
         },
         {
           "name": "program",
           "isMut": false,
-          "isSigner": false,
-          "address": "6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P"
+          "isSigner": false
         }
       ],
       "args": [
         {
           "name": "amount",
-          "type": "u64",
-          "attrs": []
+          "type": "u64"
         },
         {
           "name": "minSolOutput",
-          "type": "u64",
-          "attrs": []
+          "type": "u64"
         }
-      ],
-      "discriminant": {
-        "type": "u8",
-        "value": 51,
-        "bytes": [51, 230, 133, 164, 1, 127, 131, 173]
-      }
+      ]
     },
     {
       "name": "withdraw",
+      "docs": [
+        "Allows the admin to withdraw liquidity for a migration once the bonding curve completes"
+      ],
       "accounts": [
         {
           "name": "global",
           "isMut": false,
-          "isSigner": false
-        },
-        {
-          "name": "lastWithdraw",
-          "isMut": true,
           "isSigner": false
         },
         {
@@ -418,188 +372,69 @@
         {
           "name": "systemProgram",
           "isMut": false,
-          "isSigner": false,
-          "address": "11111111111111111111111111111111"
+          "isSigner": false
         },
         {
           "name": "tokenProgram",
           "isMut": false,
-          "isSigner": false,
-          "address": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+          "isSigner": false
         },
         {
           "name": "rent",
           "isMut": false,
-          "isSigner": false,
-          "address": "SysvarRent111111111111111111111111111111111"
+          "isSigner": false
         },
         {
           "name": "eventAuthority",
           "isMut": false,
-          "isSigner": false,
-          "address": "Ce6TQqeHC9p8KetsN6JsjHK7UTZk7nasjjnr7XxXp9F1"
+          "isSigner": false
         },
         {
           "name": "program",
           "isMut": false,
-          "isSigner": false,
-          "address": "6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P"
+          "isSigner": false
         }
       ],
-      "args": [],
-      "discriminant": {
-        "type": "u8",
-        "value": 183,
-        "bytes": [183, 18, 70, 156, 148, 109, 161, 34]
-      }
+      "args": []
     }
   ],
   "accounts": [
     {
-      "name": "BondingCurve",
-      "type": {
-        "kind": "struct",
-        "fields": [
-          {
-            "name": "virtualTokenReserves",
-            "type": "u64",
-            "attrs": []
-          },
-          {
-            "name": "virtualSolReserves",
-            "type": "u64",
-            "attrs": []
-          },
-          {
-            "name": "realTokenReserves",
-            "type": "u64",
-            "attrs": []
-          },
-          {
-            "name": "realSolReserves",
-            "type": "u64",
-            "attrs": []
-          },
-          {
-            "name": "tokenTotalSupply",
-            "type": "u64",
-            "attrs": []
-          },
-          {
-            "name": "complete",
-            "type": "bool",
-            "attrs": []
-          }
-        ]
-      }
-    },
-    {
       "name": "Global",
       "type": {
         "kind": "struct",
         "fields": [
           {
             "name": "initialized",
-            "type": "bool",
-            "attrs": []
+            "type": "bool"
           },
           {
             "name": "authority",
-            "type": "publicKey",
-            "attrs": []
+            "type": "publicKey"
           },
           {
             "name": "feeRecipient",
-            "type": "publicKey",
-            "attrs": []
+            "type": "publicKey"
           },
           {
             "name": "initialVirtualTokenReserves",
-            "type": "u64",
-            "attrs": []
+            "type": "u64"
           },
           {
             "name": "initialVirtualSolReserves",
-            "type": "u64",
-            "attrs": []
+            "type": "u64"
           },
           {
             "name": "initialRealTokenReserves",
-            "type": "u64",
-            "attrs": []
+            "type": "u64"
           },
           {
             "name": "tokenTotalSupply",
-            "type": "u64",
-            "attrs": []
+            "type": "u64"
           },
           {
             "name": "feeBasisPoints",
-            "type": "u64",
-            "attrs": []
-          }
-        ]
-      }
-    }
-  ],
-  "types": [
-    {
-      "name": "Global",
-      "type": {
-        "kind": "struct",
-        "fields": [
-          {
-            "name": "initialized",
-            "type": "bool",
-            "attrs": []
-          },
-          {
-            "name": "authority",
-            "type": "publicKey",
-            "attrs": []
-          },
-          {
-            "name": "feeRecipient",
-            "type": "publicKey",
-            "attrs": []
-          },
-          {
-            "name": "initialVirtualTokenReserves",
-            "type": "u64",
-            "attrs": []
-          },
-          {
-            "name": "initialVirtualSolReserves",
-            "type": "u64",
-            "attrs": []
-          },
-          {
-            "name": "initialRealTokenReserves",
-            "type": "u64",
-            "attrs": []
-          },
-          {
-            "name": "tokenTotalSupply",
-            "type": "u64",
-            "attrs": []
-          },
-          {
-            "name": "feeBasisPoints",
-            "type": "u64",
-            "attrs": []
-          }
-        ]
-      }
-    },
-    {
-      "name": "LastWithdraw",
-      "type": {
-        "kind": "struct",
-        "fields": [
-          {
-            "name": "lastWithdrawTimestamp",
-            "type": "i64",
-            "attrs": []
+            "type": "u64"
           }
         ]
       }
@@ -611,195 +446,27 @@
         "fields": [
           {
             "name": "virtualTokenReserves",
-            "type": "u64",
-            "attrs": []
+            "type": "u64"
           },
           {
             "name": "virtualSolReserves",
-            "type": "u64",
-            "attrs": []
+            "type": "u64"
           },
           {
             "name": "realTokenReserves",
-            "type": "u64",
-            "attrs": []
+            "type": "u64"
           },
           {
             "name": "realSolReserves",
-            "type": "u64",
-            "attrs": []
+            "type": "u64"
           },
           {
             "name": "tokenTotalSupply",
-            "type": "u64",
-            "attrs": []
+            "type": "u64"
           },
           {
             "name": "complete",
-            "type": "bool",
-            "attrs": []
-          }
-        ]
-      }
-    },
-    {
-      "name": "CreateEvent",
-      "type": {
-        "kind": "struct",
-        "fields": [
-          {
-            "name": "name",
-            "type": "string",
-            "attrs": []
-          },
-          {
-            "name": "symbol",
-            "type": "string",
-            "attrs": []
-          },
-          {
-            "name": "uri",
-            "type": "string",
-            "attrs": []
-          },
-          {
-            "name": "mint",
-            "type": "publicKey",
-            "attrs": []
-          },
-          {
-            "name": "bondingCurve",
-            "type": "publicKey",
-            "attrs": []
-          },
-          {
-            "name": "user",
-            "type": "publicKey",
-            "attrs": []
-          }
-        ]
-      }
-    },
-    {
-      "name": "TradeEvent",
-      "type": {
-        "kind": "struct",
-        "fields": [
-          {
-            "name": "mint",
-            "type": "publicKey",
-            "attrs": []
-          },
-          {
-            "name": "solAmount",
-            "type": "u64",
-            "attrs": []
-          },
-          {
-            "name": "tokenAmount",
-            "type": "u64",
-            "attrs": []
-          },
-          {
-            "name": "isBuy",
-            "type": "bool",
-            "attrs": []
-          },
-          {
-            "name": "user",
-            "type": "publicKey",
-            "attrs": []
-          },
-          {
-            "name": "timestamp",
-            "type": "i64",
-            "attrs": []
-          },
-          {
-            "name": "virtualSolReserves",
-            "type": "u64",
-            "attrs": []
-          },
-          {
-            "name": "virtualTokenReserves",
-            "type": "u64",
-            "attrs": []
-          },
-          {
-            "name": "realSolReserves",
-            "type": "u64",
-            "attrs": []
-          },
-          {
-            "name": "realTokenReserves",
-            "type": "u64",
-            "attrs": []
-          }
-        ]
-      }
-    },
-    {
-      "name": "CompleteEvent",
-      "type": {
-        "kind": "struct",
-        "fields": [
-          {
-            "name": "user",
-            "type": "publicKey",
-            "attrs": []
-          },
-          {
-            "name": "mint",
-            "type": "publicKey",
-            "attrs": []
-          },
-          {
-            "name": "bondingCurve",
-            "type": "publicKey",
-            "attrs": []
-          },
-          {
-            "name": "timestamp",
-            "type": "i64",
-            "attrs": []
-          }
-        ]
-      }
-    },
-    {
-      "name": "SetParamsEvent",
-      "type": {
-        "kind": "struct",
-        "fields": [
-          {
-            "name": "feeRecipient",
-            "type": "publicKey",
-            "attrs": []
-          },
-          {
-            "name": "initialVirtualTokenReserves",
-            "type": "u64",
-            "attrs": []
-          },
-          {
-            "name": "initialVirtualSolReserves",
-            "type": "u64",
-            "attrs": []
-          },
-          {
-            "name": "initialRealTokenReserves",
-            "type": "u64",
-            "attrs": []
-          },
-          {
-            "name": "tokenTotalSupply",
-            "type": "u64",
-            "attrs": []
-          },
-          {
-            "name": "feeBasisPoints",
-            "type": "u64",
-            "attrs": []
+            "type": "bool"
           }
         ]
       }
@@ -881,16 +548,6 @@
         },
         {
           "name": "virtualTokenReserves",
-          "type": "u64",
-          "index": false
-        },
-        {
-          "name": "realSolReserves",
-          "type": "u64",
-          "index": false
-        },
-        {
-          "name": "realTokenReserves",
           "type": "u64",
           "index": false
         }
@@ -997,15 +654,9 @@
       "code": 6007,
       "name": "NotInitialized",
       "msg": "The program is not initialized."
-    },
-    {
-      "code": 6008,
-      "name": "WithdrawTooFrequent",
-      "msg": "Withdraw too frequent"
     }
   ],
   "metadata": {
-    "origin": "anchor",
     "address": "6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P"
   }
 }
