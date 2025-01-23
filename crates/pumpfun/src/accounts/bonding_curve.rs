@@ -200,8 +200,7 @@ impl BondingCurveAccount {
     pub fn get_token_price(&self) -> f64 {
         let v_sol = self.virtual_sol_reserves as f64 / 100_000_000.0;
         let v_tokens = self.virtual_token_reserves as f64 / 100_000.0;
-        let token_price = v_sol / v_tokens;
-        token_price
+        v_sol / v_tokens
     }
 }
 

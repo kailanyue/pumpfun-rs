@@ -1,5 +1,5 @@
 use anchor_client::solana_sdk::commitment_config::CommitmentConfig;
-use mai3_pumpfun_sdk::instruction::{
+use pumpfun::instruction::{
     logs_events::DexEvent,
     logs_subscribe::{stop_subscription, tokens_subscription},
 };

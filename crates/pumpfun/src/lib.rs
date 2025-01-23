@@ -511,7 +511,7 @@ impl PumpFun {
         priority_fee: Option<PriorityFee>,
     ) -> Vec<Instruction> {
         let mut instructions = Vec::new();
-        let fee = priority_fee.unwrap_or(PriorityFee::default());
+        let fee = priority_fee.unwrap_or_default();
         if let Some(limit) = fee.limit {
             instructions.push(ComputeBudgetInstruction::set_compute_unit_limit(limit));
         }
@@ -633,8 +633,7 @@ impl PumpFun {
     pub fn get_token_price(&self, virtual_sol_reserves: u64, virtual_token_reserves: u64) -> f64 {
         let v_sol = virtual_sol_reserves as f64 / 100_000_000.0;
         let v_tokens = virtual_token_reserves as f64 / 100_000.0;
-        let token_price = v_sol / v_tokens;
-        token_price
+        v_sol / v_tokens
     }
 
     pub async fn get_token_price_in_usdc(&self, token_amount: f64) -> Result<f64, ClientError> {
