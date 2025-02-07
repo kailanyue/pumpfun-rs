@@ -13,10 +13,10 @@ readme = "README.md"
 crate-type = ["cdylib", "rlib"]
 
 [dependencies]
-anchor-client = { git = "https://github.com/coral-xyz/anchor", rev = "5d0fe35a455bc98d83e03cecdd257dfb91e8f820", features = [
+anchor-client = { git = "https://github.com/coral-xyz/anchor", rev = "96ed3b791c6fed9ab64cb138397795fe55991280", features = [
     "async",
 ] }
-anchor-spl = { git = "https://github.com/coral-xyz/anchor", rev = "5d0fe35a455bc98d83e03cecdd257dfb91e8f820" }
+anchor-spl = { git = "https://github.com/coral-xyz/anchor", rev = "96ed3b791c6fed9ab64cb138397795fe55991280" }
 borsh = { version = "1.5", features = ["derive"] }
 isahc = "1.7"
 mpl-token-metadata = "5.1"
